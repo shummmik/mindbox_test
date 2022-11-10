@@ -1,0 +1,37 @@
+version: '3'
+
+x-env-app:
+  environment:
+    &env-app
+    APP_USER_DB: appuser
+    APP_PASSWORD_DB: q1w2e3r4
+    APP_DB_NAME: store
+    APP_DB_HOST: postgres
+
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      <<: *env-app
+    ports:
+      - 5432:5432   # del
+    volumes: 
+      - pgdata:/var/lib/postgresql/data
+      - ./data:/data/
+      - ./init/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh
+  web:
+    build:
+      context: ./
+      dockerfile: webapp.Dockerfile
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    environment:
+      <<: *env-app
+volumes: 
+  pgdata:
+        
